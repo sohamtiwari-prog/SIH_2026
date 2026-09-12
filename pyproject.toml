@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lunareg"
+version = "0.1.0"
+description = "Multi-modal, sun-angle and scale invariant image registration for Chandrayaan-2 optical images (OHRC, TMC-2, IIRS) against lunar reference maps (LRO NAC, SELENE)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "SIH 2026 Team" }]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "opencv-contrib-python>=4.8",
+    "scikit-image>=0.21",
+    "pandas>=2.0",
+]
+
+[project.optional-dependencies]
+geo = ["rasterio>=1.3"]
+stats = ["scikit-learn>=1.3"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1"]
+
+[project.scripts]
+lunareg = "lunareg.cli:main"
+
+[tool.setuptools]
+packages = ["lunareg"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

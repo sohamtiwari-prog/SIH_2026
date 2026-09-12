@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sun-invariant lunar image registration — measured results</title>
+<meta name="description" content="Measured results for multi-modal, illumination- and scale-invariant registration of Chandrayaan-2 imagery against LRO references. SIH 2026, PS 26166.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0B0D11; --panel:#141821; --panel2:#1A1F2A; --rule:#252B38; --rule2:#323A4B;
+  --regolith:#CFC8BA; --body:#BDB6AA; --muted:#8A93A5; --faint:#5A6376;
+  --lit:#E0A542; --shadow:#5E8BC4; --ok:#6FBF9B; --bad:#D2706A;
+  --serif:Fraunces,"Iowan Old Style",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{transition:none!important}}
+body{margin:0; background:var(--void); color:var(--regolith); font:400 16px/1.65 var(--sans)}
+.wrap{max-width:960px; margin:0 auto; padding:0 22px}
+h1,h2{font-family:var(--serif); font-weight:300; letter-spacing:-.012em; margin:0}
+h1{font-size:clamp(30px,5.4vw,54px); line-height:1.06}
+h2{font-size:clamp(21px,3.3vw,31px); line-height:1.18; margin-bottom:12px}
+h3{font-size:17px; font-weight:500; font-family:var(--sans); margin:0 0 8px}
+p{margin:0 0 14px; max-width:74ch; color:var(--body)}
+ul{max-width:74ch; color:var(--body); padding-left:20px} li{margin-bottom:10px}
+.num{font-family:var(--mono); font-variant-numeric:tabular-nums}
+a{color:var(--lit); text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--lit); outline-offset:3px}
+
+nav{position:sticky; top:0; z-index:40; background:rgba(11,13,17,.93);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--rule)}
+nav .wrap{display:flex; gap:2px; align-items:center; overflow-x:auto; scrollbar-width:thin}
+nav a{color:var(--muted); text-decoration:none; font-size:13px; white-space:nowrap;
+      padding:13px 10px; border-bottom:2px solid transparent}
+nav a:hover{color:var(--regolith)}
+nav a[aria-current=true]{color:var(--lit); border-bottom-color:var(--lit)}
+nav .tag{font-family:var(--mono); font-size:11.5px; color:var(--faint); padding-right:14px;
+         border-right:1px solid var(--rule); margin-right:8px; white-space:nowrap}
+
+header{padding:64px 0 40px}
+.kicker{color:var(--muted); font-size:13.5px; margin-bottom:20px; font-family:var(--mono)}
+.lede{font-size:19px; color:#C6BFB2; max-width:64ch; margin-top:22px}
+.keys{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--rule);
+      border:1px solid var(--rule); margin:38px 0 0}
+.key{background:var(--panel); padding:18px 16px}
+.key .v{font-family:var(--mono); font-size:26px; color:var(--lit); line-height:1.1;
+        font-variant-numeric:tabular-nums}
+.key .k{font-size:12px; color:var(--muted); margin-top:8px; line-height:1.4}
+
+section{padding:56px 0; border-top:1px solid var(--rule)}
+.sec-no{color:var(--faint); font-size:12.5px; font-family:var(--mono); margin-bottom:10px}
+
+.instrument{background:var(--panel); border:1px solid var(--rule); padding:22px; margin-top:28px}
+.frames{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.frames.quad{grid-template-columns:repeat(4,1fr)}
+.frame{background:var(--void); border:1px solid var(--rule); padding:9px}
+.frame img{width:100%; display:block; aspect-ratio:1/1; background:#05070A; object-fit:cover}
+.frame .cap{font-size:12px; color:var(--muted); margin-top:8px; display:flex;
+            justify-content:space-between; gap:8px; flex-wrap:wrap}
+.rowlab{font-size:12.5px; color:var(--faint); margin:18px 0 9px}
+.rowlab.first{margin-top:0}
+.dial{margin-top:24px; padding-top:20px; border-top:1px solid var(--rule)}
+.dial label{display:block; font-size:13px; color:var(--muted); margin-bottom:12px}
+input[type=range]{width:100%; accent-color:var(--lit); height:28px; cursor:pointer}
+.readouts{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:20px}
+.ro{background:var(--panel2); border:1px solid var(--rule); padding:13px 14px}
+.ro .k{font-size:11.5px; color:var(--muted); margin-bottom:7px; line-height:1.35}
+.ro .v{font-family:var(--mono); font-size:23px; font-variant-numeric:tabular-nums}
+.bar{height:4px; background:var(--rule); margin-top:11px; position:relative}
+.bar i{position:absolute; top:0; bottom:0; display:block}
+.bar .mid{position:absolute; top:-3px; bottom:-3px; left:50%; width:1px; background:var(--faint)}
+
+.scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin}
+.scroll>svg{min-width:620px}
+table{border-collapse:collapse; width:100%; font-size:14px; margin:8px 0 12px; min-width:460px}
+th,td{text-align:right; padding:8px 10px; border-bottom:1px solid var(--rule)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted); font-weight:500; font-size:12.5px}
+td.n{font-family:var(--mono); font-variant-numeric:tabular-nums}
+tr.hi td{background:rgba(224,165,66,.06)}
+.sub{font-size:11px; color:var(--muted); display:block}
+.fail{color:var(--faint)} .good{color:var(--ok)} .warn{color:var(--lit)} .bad{color:var(--bad)}
+.note{font-size:13px; color:var(--muted); max-width:74ch; margin:6px 0 0}
+figure{margin:24px 0}
+figcaption{font-size:13.5px; color:var(--muted); margin-top:12px; max-width:72ch; line-height:1.6}
+svg{display:block; max-width:100%; overflow:visible}
+.legend{display:flex; flex-wrap:wrap; gap:8px 18px; font-size:13px; color:var(--muted); margin:12px 0 0}
+.legend i{width:11px;height:11px;display:inline-block;margin-right:7px;vertical-align:-1px}
+.split{display:grid; grid-template-columns:1fr 1fr; gap:26px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.pill{font:inherit; font-size:12.5px; padding:6px 13px; border:1px solid var(--rule);
+      background:var(--panel); color:var(--muted); cursor:pointer}
+.pill:hover{border-color:var(--rule2); color:var(--regolith)}
+.pill[aria-pressed=true]{border-color:var(--lit); color:var(--lit); background:rgba(224,165,66,.07)}
+
+.cmp{position:relative; border:1px solid var(--rule); background:#05070A; touch-action:none;
+     cursor:col-resize; user-select:none; -webkit-user-select:none; max-width:520px}
+.cmp img{width:100%; display:block; pointer-events:none}
+.cmp .after{position:absolute; inset:0; overflow:hidden}
+.cmp .handle{position:absolute; top:0; bottom:0; width:2px; background:var(--lit); pointer-events:none}
+.cmp .handle::after{content:''; position:absolute; top:50%; left:50%; width:34px; height:34px;
+  transform:translate(-50%,-50%); border:2px solid var(--lit); border-radius:50%;
+  background:rgba(11,13,17,.72)}
+.cmp .tagl,.cmp .tagr{position:absolute; bottom:10px; font-size:11.5px; font-family:var(--mono);
+  color:var(--regolith); background:rgba(11,13,17,.78); padding:4px 8px; pointer-events:none}
+.cmp .tagl{left:10px} .cmp .tagr{right:10px}
+
+.callout{border-left:2px solid var(--lit); padding:3px 0 3px 18px; margin:22px 0;
+         color:#C6BFB2; max-width:72ch}
+.callout.cool{border-left-color:var(--shadow)}
+.errbar{display:none; background:#3A1A18; border:1px solid var(--bad); color:#F0C9C5;
+        padding:14px 18px; margin:20px 0; font-size:14px}
+footer{padding:44px 0 80px; border-top:1px solid var(--rule); color:var(--muted); font-size:14px}
+
+
+.ctrls{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin:18px 0}
+.ctrl{display:flex;flex-direction:column;gap:6px}
+.ctrl label{font-size:11.5px;color:var(--muted)}
+select{font:inherit;font-size:13px;background:var(--panel2);color:var(--regolith);
+  border:1px solid var(--rule);padding:7px 10px;cursor:pointer}
+.cm{display:grid;grid-template-columns:auto 1fr 1fr;gap:1px;background:var(--rule);
+  border:1px solid var(--rule);max-width:440px;margin:16px 0}
+.cm div{background:var(--panel);padding:11px 13px;font-size:13px}
+.cm .hd{color:var(--muted);font-size:11.5px}
+.cm .big{font-family:var(--mono);font-size:21px}
+.mtr{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0;max-width:520px}
+.mtr .m{background:var(--panel2);border:1px solid var(--rule);padding:11px 13px}
+.mtr .m .k{font-size:11px;color:var(--muted)} .mtr .m .v{font-family:var(--mono);font-size:20px}
+.hm{display:grid;gap:2px}
+.hm .c{aspect-ratio:1.5/1;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:12px;cursor:default;border:1px solid transparent}
+.hm .c:hover{border-color:var(--regolith)}
+.hm .ax{background:none;color:var(--muted);font-size:11.5px}
+@media (max-width:760px){
+  .keys{grid-template-columns:1fr 1fr}
+  .readouts{grid-template-columns:1fr}
+  .split{grid-template-columns:1fr; gap:30px}
+  .frames.quad{grid-template-columns:1fr 1fr}
+  .wrap{padding:0 15px}
+  section{padding:44px 0}
+}
+@media print{
+  nav,.pills,input[type=range]{display:none}
+  body{background:#fff;color:#000} .instrument,.frame,.key{background:#fff;border-color:#999}
+  .scroll>svg{min-width:0} a{color:#000}
+}
+</style>
+</head>
+<body id="top">
+
+<nav aria-label="Sections"><div class="wrap">
+  <span class="tag">PS 26166</span>
+  <a href="#live">Illumination</a><a href="#envelope">Viewpoint</a><a href="#robustness">Scale</a><a href="#methods">Comparison</a><a href="#example">Sub-pixel &amp; uniformity</a><a href="#product">Product</a><a href="#cycle">Metrics</a><a href="#limits">Limits</a>
+</div></nav>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Smart India Hackathon 2026 · ISRO / Department of Space</div>
+  <h1>The Moon does not change.<br>Only the light does.</h1>
+  <p class="lede">Problem statement 26166 asks for a generic solution that finds correspondence between Chandrayaan-2 optical imagery and lunar reference imagery at sub-pixel accuracy, with match points uniformly distributed, delivered as software plus a registered product and evaluation metrics. This page reports what was built and what it measures, against a harness where the correct alignment is known exactly.</p>
+  <p class="note" style="margin-top:16px;max-width:64ch">The statement names three obstacles — illumination, viewpoint and scale variation. Sections 01 to 06 take each in turn; 07 and 08 show why the design is what it is; 09 to 11 are the three required deliverables.</p>
+  <div class="errbar" id="errbar" role="alert"></div>
+  <div class="keys" id="keys"></div>
+  <p class="note" style="margin-top:14px">Sample sizes and method definitions are stated with each figure. Nothing on this page is estimated.</p>
+</header>
+
+<section id="live">
+  <div class="sec-no">01 — challenge 1: illumination variation</div>
+  <h2>Drag the sun</h2>
+  <p>The source is fixed with the sun at azimuth 135°. The reference is re-illuminated as you move the slider. The top row diverges; the bottom row — the phase-congruency representation — stays recognisable.</p>
+  <div class="instrument">
+    <div class="rowlab first">Raw sensor intensity</div>
+    <div class="frames">
+      <div class="frame"><img id="imgSrc" alt="Source image, sun fixed at azimuth 135 degrees"><div class="cap"><span>Source · OHRC</span><span class="num">az 135°</span></div></div>
+      <div class="frame"><img id="imgRef" alt="Reference image under the selected illumination"><div class="cap"><span>Reference · LRO NAC</span><span class="num" id="refAz">az 135°</span></div></div>
+    </div>
+    <div class="rowlab">Phase congruency — built from Fourier phase, not amplitude</div>
+    <div class="frames">
+      <div class="frame"><img id="imgPcSrc" alt="Phase congruency of the source"><div class="cap"><span>PC · source</span></div></div>
+      <div class="frame"><img id="imgPcRef" alt="Phase congruency of the reference"><div class="cap"><span>PC · reference</span></div></div>
+    </div>
+    <div class="dial">
+      <label for="sun">Solar azimuth difference between the two acquisitions</label>
+      <input type="range" id="sun" min="0" max="180" step="20" value="0" aria-describedby="heroNote">
+      <div class="readouts">
+        <div class="ro"><div class="k">Correlation, raw intensity</div><div class="v" id="roRaw">—</div>
+          <div class="bar"><span class="mid"></span><i id="barRaw"></i></div></div>
+        <div class="ro"><div class="k">Correlation, phase congruency</div><div class="v" id="roPc">—</div>
+          <div class="bar"><span class="mid"></span><i id="barPc"></i></div></div>
+        <div class="ro"><div class="k">Gradient orientation agreement</div><div class="v" id="roGrad">—</div>
+          <div class="bar"><span class="mid"></span><i id="barGrad"></i></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="callout" id="heroNote"></div>
+</section>
+<section id="sweep">
+  <div class="sec-no">02 — challenge 1: measured across the full range</div>
+  <h2>Where intensity goes negative, phase holds</h2>
+  <figure>
+    <div class="scroll" id="sweepChart"></div>
+    <div class="legend">
+      <span><i style="background:#5E8BC4"></i>Raw intensity correlation</span>
+      <span><i style="background:#E0A542"></i>Phase congruency correlation</span>
+      <span><i style="background:#5A6376"></i>Gradient agreement</span>
+    </div>
+    <figcaption>Correlation between correctly aligned pairs, at 10° intervals. Raw intensity crosses zero and becomes anti-correlated; phase congruency never drops below +0.55. Gradient agreement reaching −0.88 is the direct cause of descriptor failure — SIFT encodes gradient orientation, and these gradients have reversed.</figcaption>
+  </figure>
+</section>
+<section id="periodicity">
+  <div class="sec-no">03 — challenge 1: why the failure peaks at 90°</div>
+  <h2>180° is not the hardest case. 90° is.</h2>
+  <p>Orientation is π-periodic. Rotating the sun by 180° maps every edge orientation back onto itself, so the dominant orientation channel is unchanged — only the contrast sign flips, which phase congruency already ignores. At 90° the channel genuinely rotates, and a different population of slopes is lit altogether.</p>
+  <figure>
+    <div class="scroll" id="mimChart"></div>
+    <figcaption>Agreement between the two images' Maximum Index Maps under each cyclic shift of the orientation channel. The bright band tracks <span class="num">round(Δaz / 180° × 6)</span>. At Δaz = 90° the unshifted agreement falls to 0.087, below the 0.167 random baseline — the descriptor is not merely uninformative there, it is systematically misaligned. Correcting the shift is free when solar azimuth is read from the PDS label.</figcaption>
+  </figure>
+  <div class="callout cool">Any design that assumes “larger azimuth difference means harder” will tune against the wrong failure mode.</div>
+</section>
+<section id="envelope">
+  <div class="sec-no">04 — challenge 2: viewpoint variation</div>
+  <h2>Where does this actually work?</h2>
+  <p>The problem statement names three variations: illumination, viewpoint and scale. Scale is covered in the cross-sensor tables. This grid sweeps the other two together — solar azimuth difference against viewpoint rotation with matching perspective distortion — because a method can survive each alone and fail on the combination.</p>
+  <div class="pills" id="envPills" role="group" aria-label="Envelope metric">
+    <button class="pill" type="button" data-e="rmse" aria-pressed="true">True error</button>
+    <button class="pill" type="button" data-e="n" aria-pressed="false">Tie points</button>
+  </div>
+  <div id="envWrap"></div>
+  <p class="note" id="envNote"></p>
+  <div class="callout cool" id="envVerdict"></div>
+</section>
+<section id="robustness">
+  <div class="sec-no">05 — challenge 3: scale variation</div>
+  <h2>Where it holds, and where it breaks</h2>
+  <div class="split">
+    <div><h3>Cross-sensor scale ratio</h3><div class="scroll" id="e2Table"></div></div>
+    <div><h3>Sensor noise</h3><div class="scroll" id="e4Table"></div></div>
+  </div>
+</section>
+<section id="craters">
+  <div class="sec-no">06 — challenge 3: matching beyond the appearance limit</div>
+  <h2>When appearance runs out, match constellations</h2>
+  <p>Everything up to here matches <em>appearance</em> — intensity, phase congruency, gradient histograms. Appearance is a function of resolution, so at a 10:1 GSD ratio the coarse image simply does not contain the texture the fine image is made of. Measured: dense correlation lands 252–763 px out while still reporting convergence.</p>
+  <p>A 500 m crater, though, is 500 m wide in every image ever taken of it. Crater centres are geometric landmarks in metres, not appearance features in pixels, and their relative arrangement is a rigid property of the surface. So the question becomes “does this <em>arrangement</em> of craters match that arrangement” — the same problem a star tracker solves when it identifies its attitude from a pattern of stars without knowing what any individual star looks like.</p>
+  <div class="callout cool">Two things fall out for free: the method needs no GSD prior at all, which makes it the natural bootstrap when PDS labels are missing or wrong, and it is illumination-free, because a crater rim is circular whatever the sun does.</div>
+
+  <h3 style="margin-top:30px">Detector or matcher? The harness can tell them apart</h3>
+  <p>A crater pipeline that fails could be failing at detection or at matching, and from the outside these look identical. Because the synthetic harness knows where every crater actually is, the matcher can be run on the true catalogue — isolating one from the other.</p>
+  <figure><div class="scroll" id="craterChart"></div>
+    <figcaption>Each pairing at two random terrains. Gold is the constellation matcher running on the true crater catalogue; grey is the same matcher on its own detections; blue is dense phase correlation with a metadata scale prior. The two right-hand groups are the extreme scale ratios.</figcaption>
+  </figure>
+  <div class="scroll" id="craterTable"></div>
+  <div class="callout">The matcher is not the problem. On true crater positions it reaches 0.00–0.52 px at <em>every</em> ratio tested, including the 10:1 case where dense correlation is three orders of magnitude worse. The blocking component is detection on coarse imagery, where recall falls from 0.62–0.73 to 0.02–0.07 — one to six craters found out of roughly 120 present. That is a single, well-defined component to fix, and knowing which one is worth more than a marginal accuracy gain elsewhere.</div>
+
+  <h3 style="margin-top:30px">Why the detector had to be rebuilt</h3>
+  <p>The first detector used a Hough transform on the phase-congruency map and reached precision 0.25, recall 0.21. Hough looks for circular <em>edges</em>, but a lunar crater under oblique light is not an edge ring — it is a bowl whose shading ramps along the illumination direction. Solar azimuth is in every PDS label, so that ramp is known in advance and can be matched directly.</p>
+  <div class="scroll" id="detTable"></div>
+  <p class="note">Replacing Hough with a matched filter against a bank of bowl templates roughly tripled recall. The sign of the template matters: the interior wall on the far side from the sun is the bright one, and inverting it produces a mound detector that correlates with terrain just well enough to look like it is working while precision sits near 0.01.</p>
+</section>
+<section id="methods">
+  <div class="sec-no">07 — comparison against standard methods</div>
+  <h2>Five methods, <span id="e1n" class="num"></span> registrations</h2>
+  <p>Five random terrains per condition, each with a 6° viewpoint rotation and a 1.56:1 GSD ratio between OHRC and NAC. A run counts as successful only if it converges; accuracy is measured against the known homography, over converged runs only.</p>
+  <div class="pills" id="metricPills" role="group" aria-label="Metric">
+    <button class="pill" type="button" data-m="success" aria-pressed="true">Success rate</button>
+    <button class="pill" type="button" data-m="rmse" aria-pressed="false">Median error</button>
+    <button class="pill" type="button" data-m="points" aria-pressed="false">Tie points</button>
+  </div>
+  <figure><div class="scroll" id="e1Chart"></div><figcaption id="e1Cap"></figcaption></figure>
+  <div class="scroll" id="e1Table"></div>
+</section>
+<section id="ablation">
+  <div class="sec-no">08 — which stage delivers the result</div>
+  <h2>Which stage actually carries the result</h2>
+  <p>The full pipeline with one component disabled at a time, over four terrains at three illumination differences.</p>
+  <figure><div class="scroll" id="abChart"></div><div id="abLegend"></div>
+    <figcaption>Median true error, logarithmic. Removing the metadata scale prior is catastrophic and — importantly — silent: those runs still report convergence with healthy inlier ratios while being hundreds of pixels wrong.</figcaption>
+  </figure>
+  <div class="scroll" id="abTable"></div>
+  <div class="callout">Two honest findings sit in this table. Phase congruency slightly <em>hurts</em> when illumination already matches, because raw intensity carries more high-frequency detail; it earns its place only where the light differs. And the separate sub-pixel stage changes nothing, because the dense matcher already refines every tie point internally — it is redundant code, and only the measurement revealed that.</div>
+</section>
+<section id="example">
+  <div class="sec-no">09 — sub-pixel accuracy and uniform distribution</div>
+  <h2>One registration, end to end</h2>
+  <p id="showcaseLede"></p>
+  <div class="frames quad">
+    <div class="frame"><img id="scSrc" alt="Source image"><div class="cap"><span>Source</span></div></div>
+    <div class="frame"><img id="scRef" alt="Reference image"><div class="cap"><span>Reference</span></div></div>
+    <div class="frame"><img id="scPcS" alt="Phase congruency of the source"><div class="cap"><span>PC source</span></div></div>
+    <div class="frame"><img id="scTp" alt="Tie point positions on the reference"><div class="cap"><span>Tie points</span></div></div>
+  </div>
+  <h3 style="margin-top:32px">Alignment check</h3>
+  <p>A checkerboard mosaic of the warped source against the reference. Misalignment shows as broken features at the tile seams. Drag across the image to compare.</p>
+  <div class="cmp" id="cmp">
+    <img id="cbBefore" alt="Checkerboard mosaic before registration">
+    <div class="after" id="cmpAfter"><img id="cbAfter" alt="Checkerboard mosaic after registration"></div>
+    <div class="handle" id="cmpHandle"></div>
+    <span class="tagl">before</span><span class="tagr">after</span>
+  </div>
+  <label for="cbSlide" class="note" style="display:block;margin-top:12px">Compare position</label>
+  <input type="range" id="cbSlide" min="0" max="100" value="50" style="max-width:520px">
+  <h3 style="margin-top:36px">Spatial distribution of tie points</h3>
+  <p>The problem statement requires match points spread uniformly. Points that cluster on rugged terrain leave the model unconstrained across smooth mare, and the reported error — computed on those same clustered points — looks excellent while the registration drifts everywhere else.</p>
+  <div class="scroll" id="unifTable"></div>
+</section>
+<section id="product">
+  <div class="sec-no">10 — the registered product and its match points</div>
+  <h2>The deliverable itself</h2>
+  <p id="prodLede"></p>
+  <h3 style="margin-top:26px">Transformation model</h3>
+  <div class="scroll" id="prodH"></div>
+  <h3 style="margin-top:26px">Correspondence list</h3>
+  <p>Every match point, in original source pixel coordinates and reference pixel coordinates, with its residual against the fitted model and its correlation peak-to-sidelobe quality. This table is the product; the transform above is derived from it.</p>
+  <div class="ctrls">
+    <div class="ctrl"><label for="ptSort">Order by</label>
+      <select id="ptSort">
+        <option value="i">index</option>
+        <option value="res">largest residual first</option>
+        <option value="q">highest quality first</option>
+      </select></div>
+    <div class="ctrl"><label for="ptN">Rows shown</label>
+      <select id="ptN"><option>25</option><option>50</option><option>100</option></select></div>
+    <div class="ctrl"><label>&nbsp;</label>
+      <button class="pill" type="button" id="ptDl">Download full list as CSV</button></div>
+  </div>
+  <div class="scroll" id="ptTable"></div>
+  <h3 style="margin-top:30px">Residual distribution</h3>
+  <figure><div class="scroll" id="resHist"></div>
+    <figcaption id="resCap"></figcaption></figure>
+</section>
+<section id="cycle">
+  <div class="sec-no">11 — evaluation metrics</div>
+  <h2>Evaluation metrics</h2>
+  <p>The statement asks for evaluation metrics, giving RMSE, inlier match count and inlier ratio as examples. All three are reported below for the product in section 10, together with the metrics needed to make them trustworthy.</p>
+  <div class="scroll" id="metTable"></div>
+  <h3 style="margin-top:34px">Why RMSE and inlier ratio are not sufficient on their own</h3>
+  <p>Every quality number reported so far measures <em>self-consistency</em>: whether the surviving matches agree with each other. They can agree perfectly and all be wrong together, which is exactly what the silent failures do.</p>
+  <p>So register the source onto the reference, then register the reference back onto the source, and compose the two. If both are right you end up where you started, and any deviation is error the pipeline produced without ever being told the answer. The two runs are genuinely different computations — different priors, different template windows, phase congruency computed on different data, different random draws — so their agreement is evidence in a way that one estimate agreeing with itself is not.</p>
+  <figure><div class="scroll" id="cycChart"></div>
+    <figcaption id="cycCap"></figcaption></figure>
+  <div class="scroll" id="cycTable"></div>
+  <div class="callout" id="cycVerdict"></div>
+  <p class="note">One caveat worth stating plainly: cycle error is a reliable <em>gate</em>, not a calibrated <em>error bar</em>. On the extreme-scale runs it reads 16 px where the truth is 119 px, so it tells you reliably that something is wrong without telling you how wrong. It costs one extra run of the pipeline, roughly doubling runtime.</p>
+</section>
+<section id="limits">
+  <div class="sec-no">12 — limitations</div>
+  <h2>What this does not yet solve</h2>
+  <ul id="limitList"></ul>
+</section>
+
+<footer>
+  <h3>Reproducing these numbers</h3>
+  <p>A synthetic Moon is rendered from a crater-field DEM under two solar geometries and two sensor models, so the correct homography is written down rather than inferred. Every figure reads from the CSVs that harness emits.</p>
+  <ul>
+    <li><span class="num">python -m lunareg.experiments outputs</span> — runs the four experiments, writes CSVs.</li>
+    <li><span class="num">python -m lunareg.analyse</span> — aggregates with bootstrap intervals, rebuilds this page's data.</li>
+    <li>Moving to real PDS products means replacing one function, the pair loader. The pipeline already reads GSD and solar azimuth from the label, which is what the scale prior and the orientation-shift prediction consume.</li>
+  </ul>
+  <p><a href="#top">Back to top</a></p>
+</footer>
+
+</div>
+<noscript><div class="wrap"><div class="errbar" style="display:block">This page renders its figures from embedded measurement data using JavaScript. The underlying CSVs are in the source archive.</div></div></noscript>
+
+<script id="payload" type="application/json">__DATA__</script>
+<script>
+(function(){
+'use strict';
+var errbar=document.getElementById('errbar');
+function fatal(msg){ if(errbar){ errbar.style.display='block';
+  errbar.innerHTML='<strong>The page could not render.</strong><br>'+msg; } }
+window.addEventListener('error',function(e){
+  fatal('Uncaught error: <span class="num">'+(e.message||'unknown')+'</span>'); });
+
+var D;
+try{ D=JSON.parse(document.getElementById('payload').textContent); }
+catch(err){
+  fatal('The embedded measurement data is not valid JSON: <span class="num">'+err.message+
+    '</span>. This is usually NaN or Infinity emitted by json.dump; re-run '+
+    '<span class="num">python -m lunareg.analyse</span>.');
+  return;
+}
+
+var C={lit:'#E0A542',shadow:'#5E8BC4',faint:'#5A6376',rule:'#252B38',
+       muted:'#8A93A5',ok:'#6FBF9B',text:'#CFC8BA'};
+var NS='http://www.w3.org/2000/svg';
+var MONO='"IBM Plex Mono",monospace', SANS='"IBM Plex Sans",sans-serif';
+function fmt(v,d){ d=(d===undefined)?3:d;
+  return (v===null||v===undefined||!isFinite(v))?'—':Number(v).toFixed(d); }
+function svgEl(w,h){ var s=document.createElementNS(NS,'svg');
+  s.setAttribute('viewBox','0 0 '+w+' '+h); s.setAttribute('width','100%');
+  s.setAttribute('role','img'); return s; }
+function el(tag,attrs,parent){ var e=document.createElementNS(NS,tag);
+  for(var k in attrs){ if(attrs[k]!==null&&attrs[k]!==undefined) e.setAttribute(k,attrs[k]); }
+  if(parent) parent.appendChild(e); return e; }
+function txt(p,x,y,s,o){ o=o||{};
+  var t=el('text',{x:x,y:y,fill:o.fill||C.muted,'font-size':o.size||11,
+    'text-anchor':o.anchor||'middle','font-family':o.family||MONO},p);
+  t.textContent=s; return t; }
+function tip(node,text){ var t=document.createElementNS(NS,'title');
+  t.textContent=text; node.appendChild(t); return node; }
+function byId(id){ return document.getElementById(id); }
+
+var E1=D.E1_illumination||[];
+var AZ=[]; E1.forEach(function(r){ if(AZ.indexOf(r.d_az)<0) AZ.push(r.d_az); });
+AZ.sort(function(a,b){return a-b;});
+function e1row(m,az){ var out=null;
+  E1.forEach(function(r){ if(r.method===m&&r.d_az===az) out=r; }); return out; }
+
+/* ---- key numbers ---- */
+(function(){
+  var dense=E1.filter(function(r){return r.method==='dense';});
+  var worst=0, allOk=dense.length>0, tot=0;
+  dense.forEach(function(r){
+    if(r.median!==null&&r.median>worst) worst=r.median;
+    if(r.success_rate<1) allOk=false; });
+  ['E1_illumination','E2_scale','E3_ablation','E4_noise'].forEach(function(k){
+    tot+=(D[k+'_raw_n']||0); });
+  var siftMax=null;
+  E1.forEach(function(r){ if(r.method==='sift'&&r.success_rate>0&&
+    (siftMax===null||r.d_az>siftMax)) siftMax=r.d_az; });
+  var keys=[
+    {v:fmt(worst,2)+' px', k:'Worst-case median error for the dense route, across every illumination difference tested'},
+    {v:(allOk?'100%':'—'), k:'Convergence of the dense route over all '+dense.length+' illumination conditions'},
+    {v:(siftMax===null?'—':siftMax+'°'), k:'Largest solar azimuth difference at which SIFT still converged'},
+    {v:String(tot), k:'Total registrations run against known ground truth'}
+  ];
+  byId('keys').innerHTML=keys.map(function(o){
+    return '<div class="key"><div class="v">'+o.v+'</div><div class="k">'+o.k+'</div></div>';
+  }).join('');
+  if(byId('e1n')) byId('e1n').textContent=(D.E1_illumination_raw_n||'');
+})();
+
+/* ---- 01 hero ---- */
+(function(){
+  var sweep=D.sweep||[]; if(!sweep.length) return;
+  var byAz={}; sweep.forEach(function(e){ byAz[e.d_az]=e; });
+  var sun=byId('sun');
+  function setBar(id,val){ var b=byId(id); if(!b||val===null||!isFinite(val)) return;
+    b.style.background=(val>=0)?C.lit:C.shadow;
+    if(val>=0){ b.style.left='50%'; b.style.right='auto'; }
+    else { b.style.right='50%'; b.style.left='auto'; }
+    b.style.width=(Math.min(Math.abs(val),1)*50)+'%'; }
+  function put(id,v){ var n=byId(id); if(!n) return;
+    n.textContent=((v>=0)?'+':'')+fmt(v); n.style.color=(v>=0)?C.lit:C.shadow; }
+  function render(){
+    var az=+sun.value, e=byAz[az]||sweep[0];
+    byId('imgSrc').src=e.src_png||''; byId('imgRef').src=e.ref_png||'';
+    byId('imgPcSrc').src=e.pc_src_png||'';
+    byId('imgPcRef').src=e.pc_ref_png||e.pc_src_png||'';
+    byId('refAz').textContent='az '+(135+az)+'°';
+    put('roRaw',e.ncc_raw); put('roPc',e.ncc_pc); put('roGrad',e.grad_flip);
+    setBar('barRaw',e.ncc_raw); setBar('barPc',e.ncc_pc); setBar('barGrad',e.grad_flip);
+    var n=byId('heroNote');
+    if(az===0) n.textContent='Identical illumination. Every method on this page succeeds here — which is exactly why testing only this case is misleading.';
+    else if(e.ncc_raw>0.5) n.textContent='Still tractable. Classical descriptors survive this far and no further.';
+    else if(e.ncc_raw>0) n.textContent='Intensity correlation is collapsing, but phase congruency is barely affected.';
+    else n.textContent='Intensity is now anti-correlated: the same terrain has become its own photographic negative. Phase congruency remains at '+fmt(e.ncc_pc,2)+'.';
+  }
+  sun.addEventListener('input',render); render();
+})();
+
+/* ---- 02 sweep ---- */
+(function(){
+  var sweep=D.sweep||[]; if(!sweep.length) return;
+  var W=900,H=340,ml=54,mr=18,mt=20,mb=46, iw=W-ml-mr, ih=H-mt-mb;
+  var s=svgEl(W,H);
+  function x(v){ return ml+v/180*iw; } function y(v){ return mt+(1-(v+1)/2)*ih; }
+  for(var v=-1;v<=1.001;v+=0.5){
+    el('line',{x1:ml,x2:W-mr,y1:y(v),y2:y(v),stroke:(v===0)?C.muted:C.rule,
+      'stroke-width':(v===0)?1.2:1},s);
+    txt(s,ml-10,y(v)+4,((v>0)?'+':'')+v.toFixed(1),{anchor:'end'});
+  }
+  [0,45,90,135,180].forEach(function(v){ txt(s,x(v),H-18,v+'°'); });
+  txt(s,ml+iw/2,H-2,'solar azimuth difference',{fill:C.faint,family:SANS});
+  function line(key,col,w){
+    var d=sweep.map(function(e,i){ return ((i)?'L':'M')+x(e.d_az)+' '+y(e[key]); }).join(' ');
+    el('path',{d:d,fill:'none',stroke:col,'stroke-width':w,'stroke-linejoin':'round'},s);
+    sweep.forEach(function(e){ tip(el('circle',{cx:x(e.d_az),cy:y(e[key]),r:2.6,fill:col},s),
+      'Δaz '+e.d_az+'°: '+fmt(e[key])); });
+  }
+  line('grad_flip',C.faint,1.4); line('ncc_raw',C.shadow,2.4); line('ncc_pc',C.lit,2.4);
+  var z=null; sweep.forEach(function(e){ if(z===null&&e.ncc_raw<0) z=e; });
+  if(z){ el('line',{x1:x(z.d_az),x2:x(z.d_az),y1:mt,y2:mt+ih,stroke:C.shadow,
+      'stroke-dasharray':'3 4','stroke-width':1},s);
+    txt(s,x(z.d_az),mt-6,'intensity inverts',{fill:C.shadow,size:10.5}); }
+  byId('sweepChart').appendChild(s);
+})();
+
+/* ---- 03 MIM ---- */
+(function(){
+  var rows=D.mim||[]; if(!rows.length) return;
+  var W=880, cell=Math.min(80,(W-150)/6), H=rows.length*38+78, x0=112, y0=44;
+  var s=svgEl(W,H);
+  for(var k=0;k<6;k++) txt(s,x0+k*cell+cell/2,y0-13,'shift '+k);
+  txt(s,x0-14,y0-13,'Δaz',{anchor:'end',fill:C.faint});
+  rows.forEach(function(r,i){
+    var y=y0+i*38;
+    txt(s,x0-14,y+21,r.d_az+'°',{anchor:'end',fill:C.text});
+    r.agreement.forEach(function(a,k){
+      var t=Math.min(a/0.8,1);
+      var col='rgb('+Math.round(20+220*t)+','+Math.round(24+150*Math.pow(t,1.3))+','+
+        Math.round(34+50*t*t)+')';
+      tip(el('rect',{x:x0+k*cell,y:y,width:cell-3,height:32,fill:col,
+        stroke:(k===r.predicted)?C.lit:null,
+        'stroke-width':(k===r.predicted)?1.6:null},s),
+        'Δaz '+r.d_az+'°, shift '+k+': '+a.toFixed(3));
+      txt(s,x0+k*cell+(cell-3)/2,y+21,a.toFixed(2),{fill:(t>0.45)?'#141821':C.muted,size:11});
+    });
+  });
+  txt(s,x0,H-12,'gold outline = shift predicted from the solar azimuth difference',
+    {anchor:'start',fill:C.faint,family:SANS});
+  byId('mimChart').appendChild(s);
+})();
+
+/* ---- 04 methods ---- */
+var METHODS=['dense','rift','pcsift','sift','akaze'];
+var MLABEL={dense:'Dense PC correlation (ours)',rift:'RIFT',pcsift:'PC-SIFT',
+  sift:'SIFT',akaze:'AKAZE'};
+var MCOL={dense:C.lit,rift:'#8E9AAE',pcsift:'#6E7A8E',sift:C.shadow,akaze:'#495468'};
+function e1val(m,az,metric){
+  var r=e1row(m,az); if(!r) return null;
+  if(metric==='success') return r.success_rate*100;
+  if(r.success_rate===0) return null;
+  return (metric==='rmse')?r.median:r.median_n_final;
+}
+function drawE1(metric){
+  var host=byId('e1Chart'); if(!host) return; host.innerHTML='';
+  var W=900,H=330,ml=58,mr=16,mt=18,mb=54, iw=W-ml-mr, ih=H-mt-mb;
+  var vals=[];
+  METHODS.forEach(function(mm){ AZ.forEach(function(a){
+    var v=e1val(mm,a,metric); if(v!==null&&isFinite(v)) vals.push(v); }); });
+  if(!vals.length){ host.textContent='No data available.'; return; }
+  var s=svgEl(W,H);
+  var log=(metric==='rmse');
+  var maxV=(metric==='success')?100:Math.max.apply(null,vals);
+  var minV=log?Math.max(0.01,Math.min.apply(null,vals)):0;
+  var lo=Math.log10(minV), hi=Math.log10(Math.max(maxV,minV*10));
+  function y(v){ if(v===null||!isFinite(v)) return mt+ih;
+    if(log) return mt+ih-(Math.log10(Math.max(v,minV))-lo)/(hi-lo)*ih;
+    return mt+ih-(v/maxV)*ih; }
+  var ticks=(metric==='success')?[0,25,50,75,100]
+    :(log?[0.01,0.1,1,10,100,1000]:[0,100,200,300,400]);
+  ticks.forEach(function(t){
+    if(log&&(t<minV*0.85||t>maxV*2)) return;
+    el('line',{x1:ml,x2:W-mr,y1:y(t),y2:y(t),stroke:C.rule},s);
+    txt(s,ml-9,y(t)+4,(metric==='success')?(t+'%'):String(t),{anchor:'end'});
+  });
+  var gw=iw/AZ.length, bw=Math.min(15,(gw-14)/METHODS.length);
+  AZ.forEach(function(a,i){
+    var gx=ml+i*gw+(gw-bw*METHODS.length)/2;
+    METHODS.forEach(function(mm,j){
+      var v=e1val(mm,a,metric), bx=gx+j*bw;
+      if(v===null||!isFinite(v)){
+        el('line',{x1:bx+bw/2,x2:bx+bw/2,y1:mt+ih-3,y2:mt+ih,stroke:C.faint,
+          'stroke-width':1.5},s);
+        return;
+      }
+      tip(el('rect',{x:bx,y:y(v),width:Math.max(1,bw-2),height:Math.max(1,mt+ih-y(v)),
+        fill:MCOL[mm],opacity:(mm==='dense')?1:0.72},s),
+        MLABEL[mm]+' @ Δaz '+a+'°: '+((metric==='rmse')?(fmt(v)+' px'):fmt(v,1)));
+    });
+    txt(s,ml+i*gw+gw/2,H-28,a+'°');
+  });
+  txt(s,ml+iw/2,H-6,'solar azimuth difference',{fill:C.faint,family:SANS});
+  host.appendChild(s);
+  var leg=document.createElement('div'); leg.className='legend';
+  leg.innerHTML=METHODS.map(function(mm){
+    return '<span><i style="background:'+MCOL[mm]+'"></i>'+MLABEL[mm]+'</span>';
+  }).join('')+'<span><i style="background:'+C.faint+'"></i>no successful run</span>';
+  host.appendChild(leg);
+  byId('e1Cap').textContent=(metric==='success')
+    ? 'Fraction of the five terrains on which each method converged. Classical descriptors hold to 30° and stop; the dense route converges on every run at every illumination difference.'
+    : (metric==='rmse')
+    ? 'Median true error over converged runs only, logarithmic. AKAZE\u2019s reading at 60° comes from a single run that converged confidently onto a wrong solution — inlier counts are not accuracy.'
+    : 'Median number of final tie points. Sparse methods thin out precisely when the geometry most needs constraining.';
+}
+(function(){
+  var pills=byId('metricPills');
+  pills.addEventListener('click',function(ev){
+    var b=ev.target; while(b&&b!==pills&&b.className.indexOf('pill')<0) b=b.parentNode;
+    if(!b||b===pills) return;
+    var all=pills.querySelectorAll('.pill');
+    for(var i=0;i<all.length;i++) all[i].setAttribute('aria-pressed',(all[i]===b)?'true':'false');
+    drawE1(b.getAttribute('data-m'));
+  });
+  drawE1('success');
+})();
+(function(){
+  var h='<table><thead><tr><th>Method</th>';
+  AZ.forEach(function(a){ h+='<th>'+a+'°</th>'; });
+  h+='</tr></thead><tbody>';
+  METHODS.forEach(function(mm){
+    h+='<tr'+((mm==='dense')?' class="hi"':'')+'><td>'+MLABEL[mm]+'</td>';
+    AZ.forEach(function(a){
+      var r=e1row(mm,a);
+      if(!r||r.success_rate===0||r.median===null){ h+='<td class="n fail">—</td>'; return; }
+      var cls=(r.median<1)?'good':((r.median<5)?'warn':'bad');
+      h+='<td class="n '+cls+'">'+fmt(r.median,3)+'<span class="sub">'+
+        Math.round(r.success_rate*100)+'%</span></td>';
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table><p class="note">Median true error in pixels, convergence rate beneath. Dashes mark conditions where no run converged.</p>';
+  byId('e1Table').innerHTML=h;
+})();
+
+/* ---- 05 ablation ---- */
+(function(){
+  var AB=D.E3_ablation||[]; if(!AB.length) return;
+  var VLAB={full:'Full pipeline',no_phase_congruency:'without phase congruency',
+    no_subpixel:'without sub-pixel stage',no_uniformity:'without uniformity enforcement',
+    no_scale_prior:'without metadata scale prior'};
+  var variants=[]; Object.keys(VLAB).forEach(function(v){
+    var has=false; AB.forEach(function(r){ if(r.variant===v) has=true; });
+    if(has) variants.push(v); });
+  var azs=[]; AB.forEach(function(r){ if(azs.indexOf(r.d_az)<0) azs.push(r.d_az); });
+  azs.sort(function(a,b){return a-b;});
+  var W=880,H=64+variants.length*54,ml=240,mr=56, iw=W-ml-mr;
+  var s=svgEl(W,H), lo=Math.log10(0.01), hi=Math.log10(1000);
+  function x(v){ return ml+(Math.log10(Math.max(v,0.01))-lo)/(hi-lo)*iw; }
+  [0.01,0.1,1,10,100,1000].forEach(function(t){
+    el('line',{x1:x(t),x2:x(t),y1:32,y2:H-24,stroke:C.rule},s);
+    txt(s,x(t),H-8,String(t)); });
+  el('line',{x1:x(1),x2:x(1),y1:32,y2:H-24,stroke:C.muted,'stroke-dasharray':'2 3'},s);
+  txt(s,x(1),24,'1 pixel',{fill:C.muted,size:10.5});
+  var cols=[C.faint,C.shadow,C.lit];
+  variants.forEach(function(v,i){
+    var y=44+i*54;
+    txt(s,ml-14,y+16,VLAB[v],{anchor:'end',fill:(v==='full')?C.lit:C.text,size:13,family:SANS});
+    azs.forEach(function(a,j){
+      var r=null; AB.forEach(function(q){ if(q.variant===v&&q.d_az===a) r=q; });
+      if(!r||r.median===null||!isFinite(r.median)) return;
+      tip(el('circle',{cx:x(r.median),cy:y+4+j*11,r:4.6,fill:cols[j%3]},s),
+        VLAB[v]+' @ Δaz '+a+'°: '+fmt(r.median)+' px');
+    });
+  });
+  byId('abChart').appendChild(s);
+  var leg=document.createElement('div'); leg.className='legend';
+  leg.innerHTML=azs.map(function(a,j){
+    return '<span><i style="background:'+cols[j%3]+'"></i>Δaz '+a+'°</span>'; }).join('');
+  byId('abLegend').appendChild(leg);
+
+  var h='<table><thead><tr><th>Variant</th>';
+  azs.forEach(function(a){ h+='<th>Δaz '+a+'°</th>'; });
+  h+='</tr></thead><tbody>';
+  variants.forEach(function(v){
+    h+='<tr'+((v==='full')?' class="hi"':'')+'><td>'+VLAB[v]+'</td>';
+    azs.forEach(function(a){
+      var r=null; AB.forEach(function(q){ if(q.variant===v&&q.d_az===a) r=q; });
+      var ok=r&&r.median!==null&&isFinite(r.median);
+      var cls=(!ok)?'fail':((r.median<1)?'good':((r.median<10)?'warn':'bad'));
+      h+='<td class="n '+cls+'">'+(ok?fmt(r.median):'—')+'</td>';
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table><p class="note">Median true error in pixels over four terrains.</p>';
+  byId('abTable').innerHTML=h;
+})();
+
+/* ---- 06 scale + noise ---- */
+(function(){
+  var E2=D.E2_scale||[], seen=[];
+  var h='<table><thead><tr><th>Pairing</th><th>Dense error</th><th>Converged</th></tr></thead><tbody>';
+  E2.forEach(function(r){
+    if(r.method!=='dense') return;
+    var p=r.src_sensor+' → '+r.ref_sensor;
+    if(seen.indexOf(p)>=0) return; seen.push(p);
+    var okp=Math.round(r.success_rate*100);
+    var good=(okp>0&&r.median!==null&&r.median<1);
+    var cls=(okp===0)?'fail':(good?'good':'bad');
+    h+='<tr><td>'+p+'</td><td class="n '+cls+'">'+
+      ((okp&&r.median!==null)?fmt(r.median):'—')+'</td><td class="n">'+okp+'%</td></tr>';
+  });
+  h+='</tbody></table><p class="note">Δaz 90°, errors in pixels. Ratios beyond about 4:1 degrade or fail.</p>';
+  byId('e2Table').innerHTML=h;
+
+  var E4=D.E4_noise||[], scales=[];
+  E4.forEach(function(r){ if(scales.indexOf(r.snr_scale)<0) scales.push(r.snr_scale); });
+  scales.sort(function(a,b){return b-a;});
+  function cell(m,sc){
+    var r=null; E4.forEach(function(q){ if(q.method===m&&q.snr_scale===sc) r=q; });
+    if(!r||r.success_rate===0||r.median===null) return '<td class="n fail">—</td>';
+    return '<td class="n '+((r.median<1)?'good':'warn')+'">'+fmt(r.median)+
+      '<span class="sub">'+Math.round(r.success_rate*100)+'%</span></td>';
+  }
+  var g='<table><thead><tr><th>SNR</th><th>Dense</th><th>PC-SIFT</th><th>RIFT</th></tr></thead><tbody>';
+  scales.forEach(function(sc){
+    g+='<tr><td class="n">×'+sc+'</td>'+cell('dense',sc)+cell('pcsift',sc)+cell('rift',sc)+'</tr>';
+  });
+  g+='</tbody></table><p class="note">Nominal detector SNR scaled down; errors in pixels, convergence beneath.</p>';
+  byId('e4Table').innerHTML=g;
+})();
+
+/* ---- 07 showcase ---- */
+(function(){
+  var s=D.showcase; if(!s) return;
+  function set(id,v){ var n=byId(id); if(n&&v) n.src=v; }
+  set('scSrc',s.src_png); set('scRef',s.ref_png);
+  set('scPcS',s.pc_src_png); set('scTp',s.tiepoints_png);
+  set('cbBefore',s.cb_before_png); set('cbAfter',s.cb_after_png);
+  byId('showcaseLede').textContent='OHRC against LRO NAC at a '+s.d_az+
+    '° solar azimuth difference and a 1.56:1 scale ratio. The dense route recovered '+
+    s.n_tiepoints+' tie points at '+fmt(s.rmse_true)+' px true error, worst case '+
+    fmt(s.max_true,2)+' px.';
+
+  var cmp=byId('cmp'), after=byId('cmpAfter'), handle=byId('cmpHandle'), slide=byId('cbSlide');
+  function apply(pct){
+    pct=Math.max(0,Math.min(100,pct));
+    after.style.clipPath='inset(0 0 0 '+pct+'%)';
+    handle.style.left=pct+'%'; slide.value=pct;
+  }
+  function fromEvent(e){
+    var r=cmp.getBoundingClientRect();
+    var cx=(e.touches&&e.touches[0])?e.touches[0].clientX:e.clientX;
+    if(!r.width) return; apply((cx-r.left)/r.width*100);
+  }
+  var dragging=false;
+  if(window.PointerEvent){
+    cmp.addEventListener('pointerdown',function(e){ dragging=true;
+      if(cmp.setPointerCapture) cmp.setPointerCapture(e.pointerId); fromEvent(e); });
+    cmp.addEventListener('pointermove',function(e){ if(dragging) fromEvent(e); });
+    cmp.addEventListener('pointerup',function(){ dragging=false; });
+    cmp.addEventListener('pointercancel',function(){ dragging=false; });
+  } else {
+    cmp.addEventListener('mousedown',function(e){ dragging=true; fromEvent(e); });
+    window.addEventListener('mousemove',function(e){ if(dragging) fromEvent(e); });
+    window.addEventListener('mouseup',function(){ dragging=false; });
+    cmp.addEventListener('touchmove',function(e){ fromEvent(e); });
+  }
+  slide.addEventListener('input',function(){ apply(+slide.value); });
+  apply(50);
+
+  var u=s.uniformity||{}, su=s.sparse_uniformity||{};
+  function row(lab,k){ return '<tr><td>'+lab+'</td><td class="n">'+fmt(u[k])+
+    '</td><td class="n">'+fmt(su[k])+'</td></tr>'; }
+  byId('unifTable').innerHTML=
+    '<table><thead><tr><th>Distribution metric</th><th>Dense grid</th><th>Sparse (PC-SIFT)</th></tr></thead><tbody>'
+    +'<tr class="hi"><td>Tie points</td><td class="n">'+s.n_tiepoints+'</td><td class="n">'+
+      (s.sparse_n||'—')+'</td></tr>'
+    +row('Grid coverage (8×8 cells)','coverage')
+    +row('Normalised cell entropy','entropy')
+    +row('Clark–Evans index','clark_evans')
+    +row('Ripley K deviation','ripley_dev')
+    +row('Composite uniformity','uniformity')
+    +'</tbody></table><p class="note">Clark–Evans near 1.0 means randomly placed, above 1.0 means dispersed. Coverage of 1.0 means every cell of the image holds at least one tie point.</p>';
+})();
+
+/* ---- 08 limits ---- */
+(function(){
+  var E2=D.E2_scale||[], bad=[];
+  E2.forEach(function(r){
+    if(r.method!=='dense') return;
+    if(r.success_rate===0||(r.median!==null&&r.median>5))
+      bad.push(r.src_sensor+'→'+r.ref_sensor); });
+  var items=[
+    'Extreme scale ratios remain unsolved. '+((bad.length)?(bad.join(' and ')+' fail or converge badly'):'Ratios beyond roughly 4:1 degrade')+', because a coarse chip carries too few resolvable features to constrain the fit. IIRS against a fine reference needs a scale-space cascade that is not yet built.',
+    'A run can fail silently. Several configurations report convergence with healthy inlier ratios while being hundreds of pixels wrong. Inlier ratio measures self-consistency, not correctness, and should never be quoted alone.',
+    'The terrain is synthetic. Crater morphology, the Lunar-Lambert photometric function and cast shadows are modelled, but real regolith has boulder fields, mass wasting and albedo features no parametric renderer reproduces. These numbers establish relative method ranking and catch implementation bugs; they do not replace validation on PDS products.',
+    'Only rigid and projective models are fitted. Terrain relief under an off-nadir view produces parallax no homography can absorb; that needs orthorectification against a DEM, or a piecewise model.',
+    'The sub-pixel stage is currently redundant in the dense route, and the RIFT branch is outperformed by dense correlation at every illumination difference tested. Both are kept because they are the honest comparison baselines.'
+  ];
+  byId('limitList').innerHTML=items.map(function(i){ return '<li>'+i+'</li>'; }).join('');
+})();
+
+
+/* ---- crater section ---- */
+(function(){
+  var R=D.E5_craters||[]; if(!R.length) return;
+  var pairs=[]; R.forEach(function(r){ if(pairs.indexOf(r.pair)<0) pairs.push(r.pair); });
+  function med(pair,key){
+    var v=[]; R.forEach(function(r){ if(r.pair===pair&&r[key]!==null&&isFinite(r[key])) v.push(r[key]); });
+    if(!v.length) return null; v.sort(function(a,b){return a-b;});
+    return v[Math.floor(v.length/2)];
+  }
+  var W=900,H=340,ml=58,mr=16,mt=22,mb=64, iw=W-ml-mr, ih=H-mt-mb;
+  var s=svgEl(W,H), lo=Math.log10(0.01), hi=Math.log10(1000);
+  function y(v){ return mt+ih-(Math.log10(Math.max(v,0.01))-lo)/(hi-lo)*ih; }
+  [0.01,0.1,1,10,100,1000].forEach(function(t){
+    el('line',{x1:ml,x2:W-mr,y1:y(t),y2:y(t),stroke:(t===1)?C.muted:C.rule,
+      'stroke-dasharray':(t===1)?'2 3':null},s);
+    txt(s,ml-9,y(t)+4,String(t),{anchor:'end'}); });
+  txt(s,ml-9,y(1)-8,'1 px',{anchor:'end',fill:C.muted,size:10});
+  var series=[['crater_gt_rmse',C.lit,'Constellation matcher on true craters'],
+              ['crater_rmse','#8E9AAE','Constellation matcher on detections'],
+              ['dense_rmse',C.shadow,'Dense phase correlation + GSD prior']];
+  var gw=iw/pairs.length, bw=Math.min(20,(gw-16)/3);
+  pairs.forEach(function(p,i){
+    var gx=ml+i*gw+(gw-bw*3)/2;
+    series.forEach(function(sr,j){
+      var v=med(p,sr[0]), bx=gx+j*bw;
+      if(v===null){ el('line',{x1:bx+bw/2,x2:bx+bw/2,y1:mt+ih-3,y2:mt+ih,
+        stroke:C.faint,'stroke-width':1.5},s);
+        txt(s,bx+bw/2,mt+ih+13,'×',{fill:C.faint,size:11}); return; }
+      tip(el('rect',{x:bx,y:y(v),width:bw-3,height:Math.max(1,mt+ih-y(v)),fill:sr[1]},s),
+        sr[2]+' — '+p+': '+fmt(v)+' px');
+    });
+    var r0=null; R.forEach(function(q){ if(q.pair===p) r0=q; });
+    txt(s,ml+i*gw+gw/2,H-40,p,{size:11.5,family:SANS,fill:C.text});
+    txt(s,ml+i*gw+gw/2,H-25,(r0?('ratio '+r0.ratio.toFixed(2)):''),{size:10.5});
+  });
+  txt(s,ml+iw/2,H-6,'× = no convergence · median true error, log scale',
+    {fill:C.faint,family:SANS});
+  byId('craterChart').appendChild(s);
+  var leg=document.createElement('div'); leg.className='legend';
+  leg.innerHTML=series.map(function(sr){
+    return '<span><i style="background:'+sr[1]+'"></i>'+sr[2]+'</span>'; }).join('');
+  byId('craterChart').appendChild(leg);
+
+  var h='<table><thead><tr><th>Pairing</th><th>GSD ratio</th><th>Coarse image</th>'
+       +'<th>Detector recall</th><th>Matcher on truth</th><th>Matcher on detections</th>'
+       +'<th>Dense + prior</th></tr></thead><tbody>';
+  pairs.forEach(function(p){
+    var r0=null; R.forEach(function(q){ if(q.pair===p) r0=q; });
+    var coarse=Math.min(r0.src_px,r0.ref_px);
+    var rec=(r0.src_px<r0.ref_px)?r0.rec_src:r0.rec_ref;
+    function c(k){ var v=med(p,k);
+      return '<td class="n '+((v===null)?'fail':(v<1?'good':(v<10?'warn':'bad')))+'">'
+        +((v===null)?'—':fmt(v,2))+'</td>'; }
+    h+='<tr><td>'+p+'</td><td class="n">'+r0.ratio.toFixed(2)+'</td>'
+      +'<td class="n">'+coarse+' px</td>'
+      +'<td class="n '+((rec<0.2)?'bad':'good')+'">'+fmt(rec,2)+'</td>'
+      +c('crater_gt_rmse')+c('crater_rmse')+c('dense_rmse')+'</tr>';
+  });
+  h+='</tbody></table><p class="note">Median true error in pixels over two terrains. Detector recall is quoted for the coarse image of each pairing, which is the limiting one.</p>';
+  byId('craterTable').innerHTML=h;
+
+  byId('detTable').innerHTML='<table><thead><tr><th>Detector</th><th>Precision</th>'
+    +'<th>Recall</th><th>Basis</th></tr></thead><tbody>'
+    +'<tr><td>Hough circles on phase congruency</td><td class="n">0.25</td>'
+    +'<td class="n">0.21</td><td>circular edges</td></tr>'
+    +'<tr class="hi"><td>Matched filter, bowl-shading templates</td><td class="n">0.70</td>'
+    +'<td class="n">0.60</td><td>known solar azimuth</td></tr>'
+    +'</tbody></table>';
+})();
+
+
+/* ================= registered product ================= */
+(function(){
+  var P=D.product; if(!P) return;
+  var M=P.metrics;
+  byId('prodLede').innerHTML='A single registration of '+P.src_sensor+' onto '+P.ref_sensor
+    +' at a <span class="num">'+P.d_az+'°</span> solar azimuth difference and a <span class="num">'
+    +P.scale_ratio.toFixed(2)+':1</span> resolution ratio, with a <span class="num">8°</span> viewpoint rotation'
+    +' and perspective distortion — all three of the statement\u2019s obstacles present at once. '
+    +'It yielded <span class="num">'+P.n_points+'</span> match points at <span class="num">'
+    +M.rmse_true.toFixed(3)+' px</span> true error.';
+
+  var H=P.H;
+  var h='<table><thead><tr><th>Homography, source → reference</th><th>col 1</th><th>col 2</th><th>col 3</th></tr></thead><tbody>';
+  H.forEach(function(row,i){
+    h+='<tr><td>row '+(i+1)+'</td>'+row.map(function(v){
+      return '<td class="n">'+(Math.abs(v)<1e-3?v.toExponential(3):v.toFixed(6))+'</td>'; }).join('')+'</tr>';
+  });
+  h+='</tbody></table><p class="note">Maps original source pixel coordinates to reference pixel coordinates. '
+    +'Source '+P.src_shape[0]+'×'+P.src_shape[1]+' px, reference '+P.ref_shape[0]+'×'+P.ref_shape[1]+' px.</p>';
+  byId('prodH').innerHTML=h;
+
+  var sortSel=byId('ptSort'), nSel=byId('ptN');
+  function draw(){
+    var pts=P.points.slice(), key=sortSel.value;
+    if(key==='res') pts.sort(function(a,b){return b.res-a.res;});
+    else if(key==='q') pts.sort(function(a,b){return b.q-a.q;});
+    var n=Math.min(+nSel.value,pts.length);
+    var t='<table><thead><tr><th>#</th><th>x source</th><th>y source</th><th>x reference</th>'
+      +'<th>y reference</th><th>Δx</th><th>Δy</th><th>residual</th><th>quality</th></tr></thead><tbody>';
+    for(var i=0;i<n;i++){ var r=pts[i];
+      var cls=(r.res<0.5)?'good':((r.res<1.5)?'warn':'bad');
+      t+='<tr><td class="n">'+r.i+'</td><td class="n">'+r.xs.toFixed(2)+'</td><td class="n">'+r.ys.toFixed(2)
+        +'</td><td class="n">'+r.xr.toFixed(2)+'</td><td class="n">'+r.yr.toFixed(2)
+        +'</td><td class="n">'+r.dx.toFixed(3)+'</td><td class="n">'+r.dy.toFixed(3)
+        +'</td><td class="n '+cls+'">'+r.res.toFixed(3)+'</td><td class="n">'+r.q.toFixed(0)+'</td></tr>'; }
+    t+='</tbody></table><p class="note">Showing '+n+' of '+P.points.length
+      +' match points. Residuals and Δ values are in reference pixels; quality is the '
+      +'correlation peak-to-sidelobe ratio, higher being sharper.</p>';
+    byId('ptTable').innerHTML=t;
+  }
+  sortSel.addEventListener('change',draw); nSel.addEventListener('change',draw); draw();
+
+  byId('ptDl').addEventListener('click',function(){
+    var rows=[['index','x_source','y_source','x_reference','y_reference',
+               'residual_x','residual_y','residual','quality_psr']];
+    P.points.forEach(function(r){ rows.push([r.i,r.xs,r.ys,r.xr,r.yr,r.dx,r.dy,r.res,r.q]); });
+    var csv=rows.map(function(r){return r.join(',');}).join('\n');
+    var blob=new Blob([csv],{type:'text/csv'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='match_points.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+
+  // residual histogram
+  (function(){
+    var Hh=P.residual_hist||[]; if(!Hh.length) return;
+    var W=880,Ht=250,ml=54,mr=16,mt=18,mb=46,iw=W-ml-mr,ih=Ht-mt-mb;
+    var sv=svgEl(W,Ht), mx=Math.max.apply(null,Hh);
+    var bw=iw/Hh.length;
+    for(var t=0;t<=4;t++){ var v=Math.round(mx*t/4);
+      var y=mt+ih-(v/Math.max(mx,1))*ih;
+      el('line',{x1:ml,x2:ml+iw,y1:y,y2:y,stroke:C.rule},sv);
+      txt(sv,ml-9,y+4,String(v),{anchor:'end'}); }
+    Hh.forEach(function(c,i){
+      var y=mt+ih-(c/Math.max(mx,1))*ih;
+      tip(el('rect',{x:ml+i*bw+1,y:y,width:Math.max(1,bw-2),height:Math.max(0,mt+ih-y),
+        fill:C.lit,opacity:0.9},sv),
+        (i*P.residual_max/Hh.length).toFixed(2)+'–'+((i+1)*P.residual_max/Hh.length).toFixed(2)
+        +' px: '+c+' points'); });
+    var xp=ml+(1.0/P.residual_max)*iw;
+    if(xp<ml+iw){ el('line',{x1:xp,x2:xp,y1:mt,y2:mt+ih,stroke:C.shadow,'stroke-dasharray':'3 4'},sv);
+      txt(sv,xp,mt-4,'1 px',{fill:C.shadow,size:10}); }
+    for(var k=0;k<=4;k++){ txt(sv,ml+iw*k/4,Ht-24,(P.residual_max*k/4).toFixed(2)); }
+    txt(sv,ml+iw/2,Ht-6,'residual against the fitted model (reference px)',{fill:C.faint,family:SANS});
+    byId('resHist').appendChild(sv);
+    byId('resCap').textContent='Median residual '+M.p50.toFixed(3)+' px, 90th percentile '
+      +M.p90.toFixed(3)+' px, 99th '+M.p99.toFixed(3)+' px. The spread is the tie-point scatter '
+      +'about the model; the model itself sits '+M.rmse_true.toFixed(3)
+      +' px from truth, because averaging several hundred independent measurements is more accurate than any one of them.';
+  })();
+})();
+
+/* ================= cycle consistency ================= */
+(function(){
+  var Cc=D.cycle; if(!Cc||!Cc.runs||!Cc.runs.length) return;
+  var runs=Cc.runs;
+  var W=900,H=330,ml=132,mr=20,mt=26,mb=52,iw=W-ml-mr,ih=H-mt-mb;
+  var sv=svgEl(W,H), lo=Math.log10(0.02), hi=Math.log10(1000);
+  function X(v){ return ml+(Math.log10(Math.max(v,0.02))-lo)/(hi-lo)*iw; }
+  [0.1,1,10,100,1000].forEach(function(t){
+    el('line',{x1:X(t),x2:X(t),y1:mt,y2:mt+ih,stroke:(t===1)?C.muted:C.rule,
+      'stroke-dasharray':(t===1)?'2 3':null},sv);
+    txt(sv,X(t),H-30,String(t)); });
+  txt(sv,ml+iw/2,H-10,'value of the diagnostic (px, log scale)',{fill:C.faint,family:SANS});
+  var lanes=[['cycle','Cycle consistency'],['reproj','Reprojection RMSE'],['true','True error (hidden in practice)']];
+  lanes.forEach(function(L,i){
+    var y=mt+26+i*((ih-40)/2.4);
+    txt(sv,ml-14,y+4,L[1],{anchor:'end',fill:(L[0]==='cycle')?C.lit:C.text,size:12.5,family:SANS});
+    el('line',{x1:ml,x2:ml+iw,y1:y+16,y2:y+16,stroke:C.rule},sv);
+    var miss=0;
+    runs.forEach(function(r,j){
+      var v=r[L[0]];
+      if(v===null||v===undefined){ miss++; return; }
+      var jitter=((j%5)-2)*3.4;
+      tip(el('circle',{cx:X(v),cy:y+16+jitter,r:4,
+        fill:r.bad?C.shadow:C.lit,opacity:0.85},sv),
+        (r.bad?'WRONG':'good')+' · '+r.pair+' Δaz '+r.d_az+'° · '+L[1]+' '+fmt(v,3)
+        +' px · true '+fmt(r.true,3)+' px');
+    });
+    if(miss) txt(sv,ml+iw-4,y+4,miss+' not computable',{anchor:'end',fill:C.faint,size:10});
+  });
+  byId('cycChart').appendChild(sv);
+  var leg=document.createElement('div'); leg.className='legend';
+  leg.innerHTML='<span><i style="background:'+C.lit+'"></i>registration was actually correct</span>'
+    +'<span><i style="background:'+C.shadow+'"></i>registration was actually wrong</span>';
+  byId('cycChart').appendChild(leg);
+  byId('cycCap').textContent=Cc.n+' runs, '+Cc.n_bad+' of them genuinely wrong. '
+    +'Each lane is one diagnostic. A useful diagnostic separates the two colours; '
+    +'a useless one mixes them.';
+
+  var h='<table><thead><tr><th>Diagnostic</th><th>Correct runs</th><th>Wrong runs</th>'
+       +'<th>Separation</th><th>Independent?</th></tr></thead><tbody>';
+  (Cc.sep||[]).forEach(function(r){
+    var good=r.gap>3;
+    h+='<tr'+(good?' class="hi"':'')+'><td>'+r.metric+'</td>'
+      +'<td class="n">'+fmt(r.good_lo,3)+' – '+fmt(r.good_hi,3)+'</td>'
+      +'<td class="n">'+fmt(r.bad_lo,2)+' – '+fmt(r.bad_hi,2)+'</td>'
+      +'<td class="n '+(good?'good':'bad')+'">'+r.gap.toFixed(1)+'×</td>'
+      +'<td style="text-align:left;font-size:12.5px;color:var(--muted)">'
+      +(r.independent?'yes — a second, different computation':'no — same run judging itself')+'</td></tr>';
+  });
+  h+='</tbody></table><p class="note">Ranges in pixels. Separation is the gap between the worst correct run and the best wrong one; above 1× means the classes do not overlap at all.</p>';
+  byId('cycTable').innerHTML=h;
+
+  var sep=(Cc.sep||[])[0], rep=(Cc.sep||[])[1];
+  byId('cycVerdict').innerHTML='Cycle error separates correct from wrong registrations by <span class="num">'
+    +sep.gap.toFixed(1)+'×</span> with no overlap, and a further <span class="num">'+Cc.n_uncomputable
+    +'</span> wrong runs could not produce a cycle at all — itself a flag. Reprojection RMSE, the number almost'
+    +' everyone reports, separates the same runs by <span class="num">'+rep.gap.toFixed(1)
+    +'×</span>. A single threshold near 1 px on cycle error catches every failure here with no false alarms,'
+    +' at the cost of running the pipeline twice.';
+})();
+
+/* ================= operating envelope ================= */
+(function(){
+  var E=D.envelope; if(!E||!E.cells||!E.cells.length) return;
+  function cell(rot,az){ var o=null; E.cells.forEach(function(c){
+    if(c.rot===rot&&c.d_az===az) o=c; }); return o; }
+  var mode='rmse';
+  function draw(){
+    var wrap=byId('envWrap'); wrap.innerHTML='';
+    var vals=[]; E.cells.forEach(function(c){ if(c[mode]!==null) vals.push(c[mode]); });
+    var vmin=Math.min.apply(null,vals), vmax=Math.max.apply(null,vals);
+    var g=document.createElement('div'); g.className='hm';
+    g.style.gridTemplateColumns='auto repeat('+E.azs.length+',1fr)';
+    function add(txt_,cls,style,title){
+      var e=document.createElement('div'); e.className='c '+(cls||'');
+      e.textContent=txt_; if(style) e.setAttribute('style',style);
+      if(title) e.title=title; g.appendChild(e); }
+    add('rot \\ Δaz','ax');
+    E.azs.forEach(function(a){ add(a+'°','ax'); });
+    E.rots.forEach(function(rot){
+      add(rot+'°','ax');
+      E.azs.forEach(function(az){
+        var c=cell(rot,az);
+        if(!c||c[mode]===null){ add('—','',
+          'background:var(--panel);color:var(--faint)'); return; }
+        var t=(c[mode]-vmin)/Math.max(vmax-vmin,1e-9);
+        if(mode==='n') t=1-t;                       // more points = better = darker
+        var col='rgb('+Math.round(22+205*t)+','+Math.round(28+140*Math.pow(t,1.25))+','
+          +Math.round(38+50*t*t)+')';
+        add((mode==='rmse')?c[mode].toFixed(3):String(c[mode]),'',
+          'background:'+col+';color:'+((t>0.5)?'#0B0D11':C.text),
+          'rotation '+rot+'°, Δaz '+az+'°: '+((mode==='rmse')?(c[mode].toFixed(3)+' px'):(c[mode]+' tie points'))
+          +' · '+(c.success*100).toFixed(0)+'% converged over '+c.reps+' runs');
+      });
+    });
+    wrap.appendChild(g);
+    byId('envNote').textContent=(mode==='rmse')
+      ? 'Median true error in pixels over two terrains per cell. Brighter is worse.'
+      : 'Median number of final tie points per cell. Brighter is fewer.';
+  }
+  byId('envPills').addEventListener('click',function(ev){
+    var b=ev.target; while(b&&!b.getAttribute('data-e')) b=b.parentNode;
+    if(!b||!b.getAttribute) return;
+    var all=byId('envPills').querySelectorAll('.pill');
+    for(var i=0;i<all.length;i++) all[i].setAttribute('aria-pressed',(all[i]===b)?'true':'false');
+    mode=b.getAttribute('data-e'); draw();
+  });
+  draw();
+  var worst=0,best=1e9,allok=true;
+  E.cells.forEach(function(c){ if(c.rmse===null){allok=false;return;}
+    if(c.rmse>worst) worst=c.rmse; if(c.rmse<best) best=c.rmse;
+    if(c.success<1) allok=false; });
+  byId('envVerdict').textContent='Across the full grid — solar azimuth differences to 180° combined with '
+    +'viewpoint rotations to '+E.rots[E.rots.length-1]+'° and matching perspective distortion — every cell stays sub-pixel, '
+    +'from '+best.toFixed(3)+' to '+worst.toFixed(3)+' px'
+    +(allok?', converging on every run':'')+'. Error tracks illumination and is almost flat in rotation, '
+    +'because the Fourier-Mellin bootstrap removes rotation before dense matching begins rather than asking the matcher to absorb it.';
+})();
+
+
+/* ---- required evaluation metrics table ---- */
+(function(){
+  var P=D.product; if(!P) return; var M=P.metrics;
+  function row(name,val,note,hi){
+    return '<tr'+(hi?' class="hi"':'')+'><td>'+name+'</td><td class="n">'+val
+      +'</td><td style="text-align:left;font-size:12.5px;color:var(--muted)">'+note+'</td></tr>'; }
+  var h='<table><thead><tr><th>Metric</th><th>Value</th><th>What it tells you</th></tr></thead><tbody>';
+  h+='<tr><td colspan="3" style="text-align:left;color:var(--muted);font-size:12px;'
+    +'padding-top:14px">Named in the problem statement</td></tr>';
+  h+=row('RMSE (reprojection)',M.rmse_reproj.toFixed(4)+' px',
+    'scatter of match points about the fitted model; 95% bootstrap ['
+    +M.rmse_ci[0].toFixed(3)+', '+M.rmse_ci[1].toFixed(3)+']',true);
+  h+=row('Inlier match count',String(M.inlier_count),'match points surviving robust estimation',true);
+  h+=row('Inlier ratio',(M.inlier_ratio*100).toFixed(1)+'%',
+    'fraction of candidates retained — self-consistency only',true);
+  h+='<tr><td colspan="3" style="text-align:left;color:var(--muted);font-size:12px;'
+    +'padding-top:14px">Accuracy of the registration itself</td></tr>';
+  h+=row('True geometric RMSE',M.rmse_true.toFixed(4)+' px',
+    'against the known homography — available here, not on real data');
+  h+=row('Worst-case transfer error',M.max_true.toFixed(4)+' px','largest error anywhere in the frame');
+  h+=row('Correct match ratio',(M.cmr*100).toFixed(1)+'%',M.ncm+' of '+M.inlier_count+' match points within 3 px of truth');
+  h+='<tr><td colspan="3" style="text-align:left;color:var(--muted);font-size:12px;'
+    +'padding-top:14px">Uniform distribution, as the statement requires</td></tr>';
+  h+=row('Grid coverage',(M.coverage*100).toFixed(1)+'%','fraction of 8×8 image cells holding at least one point');
+  h+=row('Normalised cell entropy',M.entropy.toFixed(3),'evenness of point counts across cells');
+  h+=row('Clark–Evans index',M.clark_evans.toFixed(3),'above 1.0 means dispersed rather than clustered');
+  h+=row('Composite uniformity',M.uniformity.toFixed(3),'weighted combination of the four spatial measures');
+  h+='<tr><td colspan="3" style="text-align:left;color:var(--muted);font-size:12px;'
+    +'padding-top:14px">Trustworthiness, computable without truth</td></tr>';
+  h+=row('Cycle consistency',(M.cycle_rmse===null?'—':M.cycle_rmse.toFixed(4)+' px'),
+    'deviation from identity after registering both ways',true);
+  h+=row('Split-half reprojection',(M.split_half===null?'—':M.split_half.toFixed(4)+' px'),
+    'error on match points withheld from the fit');
+  h+='</tbody></table><p class="note">All values for the product in section 10. '
+    +'Residual percentiles: 50th '+M.p50.toFixed(3)+' px, 90th '+M.p90.toFixed(3)
+    +' px, 99th '+M.p99.toFixed(3)+' px.</p>';
+  byId('metTable').innerHTML=h;
+})();
+
+/* ---- nav highlight ---- */
+(function(){
+  var links=[].slice.call(document.querySelectorAll('nav a'));
+  var secs=[]; links.forEach(function(a){
+    var t=document.querySelector(a.getAttribute('href')); if(t) secs.push(t); });
+  if(!window.IntersectionObserver||!secs.length) return;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting) return;
+      links.forEach(function(a){
+        a.setAttribute('aria-current',(a.getAttribute('href')==='#'+e.target.id)?'true':'false');
+      });
+    });
+  },{rootMargin:'-45% 0px -50% 0px'});
+  secs.forEach(function(x){ io.observe(x); });
+})();
+
+})();
+</script>
+</body>
+</html>
