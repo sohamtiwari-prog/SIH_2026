@@ -89,6 +89,24 @@ python -m venv .venv && source .venv/bin/activate
 pip install -e ".[geo,stats,dev]"
 ```
 
+### Single-file version
+
+`scripts/lunareg_all_in_one.py` is the whole package — every module under
+`lunareg/`, in dependency order — concatenated into one runnable script, for
+environments where a package install is inconvenient:
+
+```bash
+pip install -r requirements.txt
+python scripts/lunareg_all_in_one.py register --src A.xml --ref B.tif --method hybrid
+```
+
+It takes the same subcommands as the `lunareg` CLI below (`register`,
+`experiments`, `analyse`, `dashboard`) and is verified to produce bit-identical
+output to the packaged version (see `tests/`, all of which pass against
+either). It's generated, not hand-maintained: after changing anything under
+`lunareg/`, regenerate it with `python scripts/build_single_file.py` rather
+than editing it directly.
+
 `geo` pulls in `rasterio` for reading GeoTIFF reference products with true
 ground-sample-distance recovery; `stats` pulls in `scikit-learn` for the
 failure-prediction study; both are optional — the core pipeline only needs
@@ -167,6 +185,9 @@ lunareg/
   stats.py         failure-prediction model, dose-response curves, variance decomposition
   build_dashboard.py  injects dashboard_data.json into the HTML template
 tests/             pytest suite (43 tests)
+scripts/
+  lunareg_all_in_one.py  generated single-file build of the whole package (see above)
+  build_single_file.py   regenerates it from lunareg/
 examples/outputs/  a pre-built dashboard + sample product.json deliverable
 .github/workflows/ CI: pytest across Python 3.10-3.12, non-blocking ruff lint
 ```
